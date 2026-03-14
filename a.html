@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathways AI | Resource Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .app-container { max-width: 430px; margin: 0 auto; height: 100vh; display: flex; flex-col; background: #fff; color: #1e293b; position: relative; overflow: hidden; }
+        .card { transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid #e2e8f0; }
+        .card:active { transform: scale(0.98); }
+        .gradient-bg { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
+        .bottom-nav { border-top: 1px solid #f1f5f9; height: 75px; }
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container shadow-2xl">
+        
+        <div class="gradient-bg p-6 pb-10 text-white rounded-b-[2.5rem] shadow-lg z-10">
+            <div class="flex justify-between items-center mb-4 text-sm opacity-80 font-bold tracking-widest">
+                <span>PATHWAYS AI</span>
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold mb-1">Local Wealth</h1>
+            <p class="text-emerald-100 text-sm font-medium">Scanning resources in your area...</p>
+        </div>
+
+        <div class="px-6 -mt-6 z-20">
+            <div class="bg-white rounded-2xl shadow-xl p-4 flex items-center justify-between border border-emerald-50">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-100 p-2 rounded-full text-emerald-600">
+                        <i class="fas fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <select id="geoSim" onchange="updateApp()" class="text-sm font-bold bg-transparent border-none outline-none cursor-pointer">
+                            <option value="industrial">Industrial Outskirts</option>
+                            <option value="forest">Pine Ridge Forest</option>
+                            <option value="coastal">Marine Dockside</option>
+                        </select>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Current Environment</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span id="weather" class="text-sm font-bold">24°C</span>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase">Clear Sky</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="feed" class="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+            </div>
+
+        <div class="bottom-nav bg-white flex justify-around items-center px-4">
+            <button class="flex flex-col items-center text-emerald-600">
+                <i class="fas fa-compass text-xl"></i>
+                <span class="text-[10px] font-bold mt-1">Explore</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-300">
+                <i class="fas fa-hammer text-xl"></i>
+                <span class="text-[10px] font-bold mt-1">Build</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-300">
+                <i class="fas fa-book text-xl"></i>
+                <span class="text-[10px] font-bold mt-1">Legal</span>
+            </button>
+            <button class="flex flex-col items-center text-gray-300">
+                <i class="fas fa-wallet text-xl"></i>
+                <span class="text-[10px] font-bold mt-1">Wallet</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const database = {
+            industrial: {
+                weather: "22°C",
+                items: [
+                    { id: 1, title: "PVC Air Rockets", type: "Independent Craft", earn: "$12 - $15 ea", icon: "fa-rocket", color: "orange", desc: "Use scrap PVC pipes and soda bottles. High demand at local parks today." },
+                    { id: 2, title: "Pallet Furniture", type: "Upcycle", earn: "$40+ per day", icon: "fa-couch", color: "amber", desc: "Collect 'Blue' pallets from warehouses. Follow the 10-minute chair guide." },
+                    { id: 3, title: "Aluminum Scrap", type: "Bulk Trade", earn: "$0.65/lb", icon: "fa-recycle", color: "blue", desc: "Local recycling center 'Scrapit' has a $5 bonus for loads over 20lbs." }
+                ]
+            },
+            forest: {
+                weather: "16°C",
+                items: [
+                    { id: 4, title: "Wild Morel Gathering", type: "Forage", earn: "$25/lb", icon: "fa-leaf", color: "emerald", desc: "Peak season. Focus on burnt soil and elm trees. Market buyer is ACTIVE." },
+                    { id: 5, title: "Pine Resin Wax", type: "Independent Craft", earn: "$8/jar", icon: "fa-fire", color: "red", desc: "Collect resin from pine trees to make fire-starters for camping sites." },
+                    { id: 6, title: "Cedar Wood Carving", type: "Artisan", earn: "$20/ea", icon: "fa-tree", color: "stone", desc: "Fallen cedar found at East trail. Carve small animal shapes for tourists." }
+                ]
+            },
+            coastal: {
+                weather: "19°C",
+                items: [
+                    { id: 7, title: "Razor Clam Harvest", type: "Direct Sell", earn: "$10/lb", icon: "fa-water", color: "blue", desc: "Low tide at 2PM. Commercial buyer at Dock 4 is paying cash." },
+                    { id: 8, title: "Driftwood Frames", type: "Craft", earn: "$35/ea", icon: "fa-image", color: "teal", desc: "Sun-bleached wood is abundant. Market demand high for 'Beach Decor'." },
+                    { id: 9, title: "Invasive Crab Bounty", type: "Legal Gig", earn: "$2/crab", icon: "fa-bug", color: "rose", desc: "Government bounty active for Green Crabs. No license required for removal." }
+                ]
+            }
+        };
+
+        function updateApp() {
+            const loc = document.getElementById('geoSim').value;
+            const data = database[loc];
+            const feed = document.getElementById('feed');
+            
+            document.getElementById('weather').innerText = data.weather;
+            
+            let html = `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">AI Recommendation</p>
+                    <p class="text-xs font-medium text-slate-600 leading-relaxed">Based on your location, focusing on <b>${data.items[0].type}</b> offers the fastest path to $20 today.</p>
+                </div>
+            `;
+
+            data.items.forEach(item => {
+                html += `
+                <div class="card bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 flex items-start space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-${item.color}-100 flex items-center justify-center text-${item.color}-600">
+                        <i class="fas ${item.icon} fa-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${item.type}</span>
+                            <span class="text-sm font-bold text-emerald-600">${item.earn}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 leading-tight mb-1">${item.title}</h3>
+                        <p class="text-xs text-slate-500 mb-4 line-clamp-2">${item.desc}</p>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 bg-slate-900 text-white text-[10px] font-bold py-2 rounded-xl">HOW TO GUIDE</button>
+                            <button class="px-3 bg-emerald-50 text-emerald-600 text-[10px] font-bold py-2 rounded-xl">
+                                <i class="fas fa-map"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            feed.innerHTML = html;
+        }
+
+        updateApp();
+    </script>
+</body>
+</html>
